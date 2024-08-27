@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Room {% endblock %}
+{% block content %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8">
+                <h3 class="my-2">Room: {{ room.name }}</h3>
+                <div id="chat-messages" class="border p-3 mb-3" style="height: 300px; overflow-y: auto;">
+                    {% for message in messages %}
+                        <p><strong>{{ message.user.username }}:</strong> {{ message.body }}</p>
+                    {% endfor %}
+                </div>
+
+                <form class="d-flex" method="post">
+                    {% csrf_token %}
+                    <input id="message-input" type="text" class="form-control me-2" placeholder="Enter message">
+                    <button id="send-button" type="submit" class="btn btn-primary">Send</button>
+                </form>
+
+                {{ room.slug|json_script:"room_slug" }}
+                {{ request.user.username|json_script:"username" }}
+            </div>
+        </div>
+    </div>
+
+    <script>
+    
+        const room_slug = JSON.parse(document.getElementById("room_slug").textContent)
+        const username = JSON.parse(document.getElementById("username").textContent)
+        const ws = new WebSocket(
+            'ws://'
+            + window.location.host
+            + "/ws/"
+            + room_slug
+            + "/"
+        )
+
+        ws.onmessage = function (e) {
+            msg = JSON.parse(e.data)
+            let html = '<p><strong>'
+            html += msg.username ? msg.username : 'anonim'
+            html += ':</strong> ' + msg.message + '</p>'
+            document.getElementById("chat-messages").innerHTML += html
+        }
+
+        ws.onclose = function (e) {
+            console.log("Socket closed")
+        }
+
+        document.getElementById("send-button").onclick = function (e) {
+            e.preventDefault()
+            const message_input = document.getElementById("message-input")
+            const message = message_input.value
+            if (message) {
+                ws.send(JSON.stringify({
+                    "username": username,
+                    "message": message,
+                    "room": room_slug,
+                }))
+            }
+            message_input.value = ""
+        }
+    </script>
+
+
+{% endblock %}

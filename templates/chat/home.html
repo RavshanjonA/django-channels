@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block title %} Home {% endblock %}
+{% block content %}
+    <h1>Hello, world!</h1>
+    <p><a href="{% url 'chat:rooms' %}" class="text-blue-600 visited:text-blue-600">Rooms</a></p>
+{% endblock %}

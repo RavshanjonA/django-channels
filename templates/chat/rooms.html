@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Rooms {% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-8">
+            <h3 class="my-2">Rooms</h3>
+            <ul type="none" class="mt-3">
+                {% for room in rooms %}
+                    <li><a href="{% url 'chat:room' slug=room.slug %}"
+                           class="text-blue-600 visited:text-blue-600">{{ room.name }}</a></li>
+                {% endfor %}
+
+            </ul>
+
+        </div>
+    </div>
+
+{% endblock %}
